@@ -8,7 +8,12 @@ __copyright__ = "Copyright (c) 2013, SeongJae Park"
 __license__ = "GPLv3"
 
 import os
+import platform
 import sys
+
+if platform.system() != "Linux":
+    print "Sorry, we Support only linux(yet)."
+    exit(1)
 
 raw_resolutions = os.popen("xrandr | grep '*'").readlines()
 resolutions = []
