@@ -34,11 +34,17 @@ Usage: %s <screen> <left> <top> <right> <bottom>
         -1 for current value.
 """ % sys.argv[0]
 
-raw_resolutions = os.popen("xrandr | grep '*'").readlines()
-resolutions = []
-for raw_resolution in raw_resolutions:
-    resolution = raw_resolution.split()[0].split('x')
-    resolutions.append([int(resolution[0]), int(resolution[1])])
+def get_screen_config():
+    """Return screen configuration include start coordinate, width, height"""
+    raw_resolutions = os.popen("xrandr | grep '*'").readlines()
+    resolutions = []
+    screen_left = 0
+    for raw_resolution in raw_resolutions:
+        resolution = raw_resolution.split()[0].split('x')
+        resolutions.append([screen_left, int(resolution[0]),
+            int(resolution[1])])
+        screen_left = screen_left + resolutions[-1][1]
+    return resolutions
 
 def get_active_window_info():
     l = 0
@@ -71,38 +77,31 @@ if __name__ == "__main__":
 
     active_window_info = get_active_window_info()
 
-    screen_left = 0
+    resolutions = get_screen_config()
     if screen_no == -1:
-        for resolution in resolutions:
-            if screen_left + resolution[0] < active_window_info[0]:
-                screen_no = screen_no + 1
-                screen_left = screen_left + resolution[0]
-            else:
-                break
-    else:
         for i, resolution in enumerate(resolutions):
-            if i < screen_no:
-                screen_left += resolution[0]
+            if resolution[0] > active_window_info[0]:
+                screen_no = i - 1
+                break
+    resolution = resolutions[screen_no]
 
     if left_percent == -1:
         left_abs = active_window_info[0]
     else:
-        left_abs = int(screen_left + resolutions[screen_no][0] * left_percent /
-                100)
+        left_abs = int(resolution[0] + resolution[1] * left_percent / 100)
     if top_percent == -1:
         top_abs = active_window_info[1]
     else:
-        top_abs = int(resolutions[screen_no][1] * top_percent / 100)
+        top_abs = int(resolution[2] * top_percent / 100)
     if right_percent == -1:
         width_abs = active_window_info[2] - left_abs
     else:
-        width_abs = screen_left + int(resolutions[screen_no][0] *
-                right_percent / 100) - left_abs
+        width_abs = int(resolution[0] + resolution[1] * right_percent / 100 -
+                left_abs)
     if bottom_percent == -1:
         height_abs = active_window_info[3] - top_abs
     else:
-        height_abs = int(resolutions[screen_no][1] * bottom_percent /
-                100) - top_abs
+        height_abs = int(resolution[2] * bottom_percent / 100) - top_abs
 
     cmd = "wmctrl -r :ACTIVE: -e 0,%d,%d,%d,%d" % (left_abs, top_abs,
             width_abs, height_abs)
