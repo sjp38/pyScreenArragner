@@ -19,19 +19,24 @@ USAGE = """
 Usage: %s <screen> <left> <top> <right> <bottom>
     screen: number of screen which should window locate.
         start from 0, ordered by xrandr says.
-        -1 for current screen.
+        prefix 'a_' for absolute value,
+        prefix 'r_' for value relative to current value.
     left: X coordinate of left side of the window in percentage
         relative to the screen
-        -1 for current value.
+        prefix 'a_' for absolute value,
+        prefix 'r_' for value relative to current value.
     top: Y coordinate of the top of the window in percentage
         relative to the screen
-        -1 for current value.
+        prefix 'a_' for absolute value,
+        prefix 'r_' for value relative to current value.
     right: X coordinate of right side of the window in
         percentage relative to the screen
-        -1 for current value.
+        prefix 'a_' for absolute value,
+        prefix 'r_' for value relative to current value.
     bottom: Y coordinate of bottom of the window in percenatge
         relative to the screen
-        -1 for current value.
+        prefix 'a_' for absolute value,
+        prefix 'r_' for value relative to current value.
 """ % sys.argv[0]
 
 def get_screen_config():
@@ -46,7 +51,9 @@ def get_screen_config():
         screen_left = screen_left + resolutions[-1][1]
     return resolutions
 
-def get_active_window_info():
+def get_active_window_info(resolutions):
+    """Return active window's coordinate in percent relative to current screen
+    """
     l = 0
     r = 0
     t = 0
@@ -63,47 +70,76 @@ def get_active_window_info():
             r = l + int(info.split()[-1])
         elif info.find("Height: ") != -1:
             b = t + int(info.split()[-1])
-    return (l, t, r, b)
+
+    screen_no = -1
+    for resolution in resolutions:
+        if resolution[0] <= l:
+            screen_no = screen_no + 1
+        else:
+            break
+
+    resolution = resolutions[screen_no]
+    return (screen_no,
+            (l - resolution[0]) / float(resolution[1]) * 100,
+            t / float(resolution[2]) * 100,
+            (r - resolution[0]) / float(resolution[1]) * 100,
+            b / float(resolution[2]) * 100)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print USAGE
         exit(1)
-    screen_no = int(sys.argv[1])
-    left_percent = float(sys.argv[2])
-    top_percent = float(sys.argv[3])
-    right_percent = float(sys.argv[4])
-    bottom_percent = float(sys.argv[5])
+    screen_no = sys.argv[1].split("_")
+    screen_no[1] = int(screen_no[1])
 
-    active_window_info = get_active_window_info()
+    left_percent = sys.argv[2].split("_")
+    left_percent[1] = float(left_percent[1])
+
+    top_percent = sys.argv[3].split("_")
+    top_percent[1] = float(top_percent[1])
+
+    right_percent = sys.argv[4].split("_")
+    right_percent[1] = float(right_percent[1])
+
+    bottom_percent = sys.argv[5].split("_")
+    bottom_percent[1] = float(bottom_percent[1])
 
     resolutions = get_screen_config()
-    if screen_no == -1:
-        for i, resolution in enumerate(resolutions):
-            if resolution[0] > active_window_info[0]:
-                screen_no = i - 1
-                break
-    resolution = resolutions[screen_no]
+    active_window_info = get_active_window_info(resolutions)
 
-    if left_percent == -1:
-        left_abs = resolution[0] + active_window_info[0]
-    else:
-        left_abs = int(resolution[0] + resolution[1] * left_percent / 100)
-    if top_percent == -1:
-        top_abs = active_window_info[1]
-    else:
-        top_abs = int(resolution[2] * top_percent / 100)
-    if right_percent == -1:
-        width_abs = resolution[0] + active_window_info[2] - left_abs
-    else:
-        width_abs = int(resolution[0] + resolution[1] * right_percent / 100 -
-                left_abs)
-    if bottom_percent == -1:
-        height_abs = active_window_info[3] - top_abs
-    else:
-        height_abs = int(resolution[2] * bottom_percent / 100) - top_abs
+    # Tranlate relative percent values to absolute percent values
+    if screen_no[0] == "r":
+        screen_no[0] = "a"
+        screen_no[1] = ((active_window_info[0] + screen_no[1]) %
+                len(resolutions))
 
-    cmd = "wmctrl -r :ACTIVE: -e 0,%d,%d,%d,%d" % (left_abs, top_abs,
-            width_abs, height_abs)
+    if left_percent[0] == "r":
+        left_percent[0] = "a"
+        left_percent[1] = active_window_info[1] + left_percent[1]
+
+    if top_percent[0] == "r":
+        top_percent[0] = "a"
+        top_percent[1] = active_window_info[2] + top_percent[1]
+
+    if right_percent[0] == "r":
+        right_percent[0] = "a"
+        right_percent[1] = active_window_info[3] + right_percent[1]
+
+    if bottom_percent[0] == "r":
+        bottom_percent[0] = "a"
+        bottom_percent[1] = active_window_info[4] + bottom_percent[1]
+
+    # Translate absolute percent value to absolute pixel coordinate
+    resolution = resolutions[screen_no[1]]
+    left_pix = int(resolution[0] + resolution[1] * left_percent[1] / 100)
+    top_pix = int(resolution[2] * top_percent[1] / 100)
+    right_pix = int(resolution[0] + resolution[1] * right_percent[1] / 100)
+    bottom_pix = int(resolution[2] * bottom_percent[1] / 100)
+
+    width_pix = right_pix - left_pix
+    height_pix = bottom_pix - top_pix
+
+    cmd = "wmctrl -r :ACTIVE: -e 0,%d,%d,%d,%d" % (left_pix, top_pix,
+            width_pix, height_pix)
     print cmd
     os.system(cmd)
