@@ -1,6 +1,6 @@
 # pyScreenArranger
 
-Tool which helps screen arranging by coordinate window.
+Tool which helps screen arranging by coordinating window.
 
 Currently, support _linux_ only. We will __not__ support _MS Windows_, maybe.
 If you are using Windows, consider using _WinSplitRevolution_ which gave
