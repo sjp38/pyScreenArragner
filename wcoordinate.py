@@ -86,7 +86,7 @@ if __name__ == "__main__":
     resolution = resolutions[screen_no]
 
     if left_percent == -1:
-        left_abs = active_window_info[0]
+        left_abs = resolution[0] + active_window_info[0]
     else:
         left_abs = int(resolution[0] + resolution[1] * left_percent / 100)
     if top_percent == -1:
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     else:
         top_abs = int(resolution[2] * top_percent / 100)
     if right_percent == -1:
-        width_abs = active_window_info[2] - left_abs
+        width_abs = resolution[0] + active_window_info[2] - left_abs
     else:
         width_abs = int(resolution[0] + resolution[1] * right_percent / 100 -
                 left_abs)
