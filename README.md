@@ -36,8 +36,5 @@ GPL v3.
 Anyone can use source code everywhere. But, should follow limitation of GPL
 v3.(http://www.gnu.org/licenses/gpl-3.0.html)
 
-# version
-0.0.0.0
-
 # Author
 SeongJae Park (sj38.park@gmail.com)
