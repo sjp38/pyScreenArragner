@@ -39,6 +39,9 @@ Usage: %s <screen> <left> <top> <right> <bottom>
         prefix 'r_' for value relative to current value.
 """ % sys.argv[0]
 
+# bound for menu line
+UPPER_BOUND = 20
+
 def get_screen_config():
     """Return screen configuration include start coordinate, width, height"""
     raw_resolutions = os.popen("xrandr | grep '*'").readlines()
@@ -66,6 +69,7 @@ def get_active_window_info(resolutions):
             l = int(info.split()[-1])
         elif info.find("Absolute upper-left Y: ") != -1:
             t = int(info.split()[-1])
+            t = t - UPPER_BOUND
         elif info.find("Width: ") != -1:
             r = l + int(info.split()[-1])
         elif info.find("Height: ") != -1:
@@ -80,10 +84,10 @@ def get_active_window_info(resolutions):
 
     resolution = resolutions[screen_no]
     return (screen_no,
-            (l - resolution[0]) / float(resolution[1]) * 100,
-            t / float(resolution[2]) * 100,
-            (r - resolution[0]) / float(resolution[1]) * 100,
-            b / float(resolution[2]) * 100)
+            round((l - resolution[0]) / float(resolution[1]) * 100, -1),
+            round(t / float(resolution[2]) * 100, -1),
+            round((r - resolution[0]) / float(resolution[1]) * 100, -1),
+            round(b / float(resolution[2]) * 100, -1))
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
