@@ -16,7 +16,13 @@ if platform.system() != "Linux":
     exit(1)
 
 USAGE = """
-Usage: %s <screen> <left> <top> <right> <bottom>
+Usage: %s [--menu-height<=height>] [--system-menu-height<=height>]
+    [--system-menu-screen=<screen>] <screen> <left> <top> <right> <bottom>
+
+    --menu-height: height of menu bar of window in pixel.
+    --system-menu-height: height of system menu bar in pixel.
+    --system-menu-screen: number of screen which system menu bar located.
+
     screen: number of screen which should window locate.
         start from 0, ordered by xrandr says.
         prefix 'a_' for absolute value,
@@ -40,7 +46,9 @@ Usage: %s <screen> <left> <top> <right> <bottom>
 """ % sys.argv[0]
 
 # bound for menu line
-UPPER_BOUND = 20
+MENU_HEIGHT = 29
+SYSTEM_MENU_HEIGHT = 10
+SYSTEM_MENU_SCREEN = 1
 
 def get_screen_config():
     """Return screen configuration include start coordinate, width, height"""
@@ -52,6 +60,8 @@ def get_screen_config():
         resolutions.append([screen_left, int(resolution[0]),
             int(resolution[1])])
         screen_left = screen_left + resolutions[-1][1]
+    resolutions[SYSTEM_MENU_SCREEN][2] = (resolutions[SYSTEM_MENU_SCREEN][2] -
+            SYSTEM_MENU_HEIGHT)
     return resolutions
 
 def get_active_window_info(resolutions):
@@ -69,7 +79,7 @@ def get_active_window_info(resolutions):
             l = int(info.split()[-1])
         elif info.find("Absolute upper-left Y: ") != -1:
             t = int(info.split()[-1])
-            t = t - UPPER_BOUND
+            t = t - MENU_HEIGHT
         elif info.find("Width: ") != -1:
             r = l + int(info.split()[-1])
         elif info.find("Height: ") != -1:
@@ -90,22 +100,31 @@ def get_active_window_info(resolutions):
             round(b / float(resolution[2]) * 100, -1))
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 6:
         print USAGE
         exit(1)
-    screen_no = sys.argv[1].split("_")
+
+    for arg in sys.argv[:-5]:
+        if arg.startswith("--menu-height"):
+            MENU_HEIGHT = int(arg.split("=")[1])
+        elif arg.startswith("--system-menu_height"):
+            SYSTEM_MENU_HEIGHT = int(arg.split("=")[1])
+        elif arg.startswith("--system-menu-screen"):
+            SYSTEM_MENU_SCREEN = int(arg.split("=")[1])
+
+    screen_no = sys.argv[-5].split("_")
     screen_no[1] = int(screen_no[1])
 
-    left_percent = sys.argv[2].split("_")
+    left_percent = sys.argv[-4].split("_")
     left_percent[1] = float(left_percent[1])
 
-    top_percent = sys.argv[3].split("_")
+    top_percent = sys.argv[-3].split("_")
     top_percent[1] = float(top_percent[1])
 
-    right_percent = sys.argv[4].split("_")
+    right_percent = sys.argv[-2].split("_")
     right_percent[1] = float(right_percent[1])
 
-    bottom_percent = sys.argv[5].split("_")
+    bottom_percent = sys.argv[-1].split("_")
     bottom_percent[1] = float(bottom_percent[1])
 
     resolutions = get_screen_config()
@@ -133,6 +152,7 @@ if __name__ == "__main__":
         bottom_percent[0] = "a"
         bottom_percent[1] = active_window_info[4] + bottom_percent[1]
 
+
     # Translate absolute percent value to absolute pixel coordinate
     resolution = resolutions[screen_no[1]]
     left_pix = int(resolution[0] + resolution[1] * left_percent[1] / 100)
@@ -140,8 +160,12 @@ if __name__ == "__main__":
     right_pix = int(resolution[0] + resolution[1] * right_percent[1] / 100)
     bottom_pix = int(resolution[2] * bottom_percent[1] / 100)
 
+    if screen_no[1] == SYSTEM_MENU_SCREEN:
+        top_pix = top_pix + SYSTEM_MENU_HEIGHT
+
+
     width_pix = right_pix - left_pix
-    height_pix = bottom_pix - top_pix
+    height_pix = bottom_pix - top_pix - MENU_HEIGHT
 
     cmd = "wmctrl -r :ACTIVE: -e 0,%d,%d,%d,%d" % (left_pix, top_pix,
             width_pix, height_pix)
