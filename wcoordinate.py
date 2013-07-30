@@ -99,12 +99,9 @@ def get_active_window_info(resolutions):
             round((r - resolution[0]) / float(resolution[1]) * 100, -1),
             round(b / float(resolution[2]) * 100, -1))
 
-if __name__ == "__main__":
-    if len(sys.argv) < 6:
-        print USAGE
-        exit(1)
-
-    for arg in sys.argv[:-5]:
+def parse_arguments(args):
+    """Parse arguments and set global values, return destination position"""
+    for arg in args:
         if arg.startswith("--menu-height"):
             MENU_HEIGHT = int(arg.split("=")[1])
         elif arg.startswith("--system-menu_height"):
@@ -112,62 +109,101 @@ if __name__ == "__main__":
         elif arg.startswith("--system-menu-screen"):
             SYSTEM_MENU_SCREEN = int(arg.split("=")[1])
 
-    screen_no = sys.argv[-5].split("_")
+    screen_no = args[-5].split("_")
     screen_no[1] = int(screen_no[1])
 
-    left_percent = sys.argv[-4].split("_")
+    left_percent = args[-4].split("_")
     left_percent[1] = float(left_percent[1])
 
-    top_percent = sys.argv[-3].split("_")
+    top_percent = args[-3].split("_")
     top_percent[1] = float(top_percent[1])
 
-    right_percent = sys.argv[-2].split("_")
+    right_percent = args[-2].split("_")
     right_percent[1] = float(right_percent[1])
 
-    bottom_percent = sys.argv[-1].split("_")
+    bottom_percent = args[-1].split("_")
     bottom_percent[1] = float(bottom_percent[1])
 
+    return (screen_no,
+            left_percent, top_percent, right_percent, bottom_percent)
+
+def relative_to_absolute(destination, resolutions, active_window_info):
+    """Tranlate relative values to absolute values in percentage.
+
+    param destination:
+        Tuple of destination position informations. It contains target screen
+        number, target left, top, right, bottom coordinate. coordinates are
+        list with mode('r' for relative mode, 'a' for absolute mode) in
+        percentage relative to target screen. elements are ordered in mentioned
+        order."""
+    if destination[0][0] == "r":
+        destination[0][0] = "a"
+        destination[0][1] = ((active_window_info[0] + destination[0][1]) %
+                len(resolutions))
+
+    if destination[1][0] == "r":
+        destination[1][0] = "a"
+        destination[1][1] = active_window_info[1] + destination[1][1]
+
+    if destination[2][0] == "r":
+        destination[2][0] = "a"
+        destination[2][1] = active_window_info[2] + destination[2][1]
+
+    if destination[3][0] == "r":
+        destination[3][0] = "a"
+        destination[3][1] = active_window_info[3] + destination[3][1]
+
+    if destination[4][0] == "r":
+        destination[4][0] = "a"
+        destination[4][1] = active_window_info[4] + destination[4][1]
+
+def percent_to_pixel(destination, resolutions):
+    """Translate absolute percent value to absolute pixel coordinate.
+
+    param destination:
+        Tuple of destination position informations. It contains target screen
+        number, target left, top, right, bottom coordinate. coordinates are
+        list with mode('r' for relative mode, 'a' for absolute mode) in
+        percentage relative to target screen. elements are ordered in mentioned
+        order."""
+    resolution = resolutions[destination[0][1]]
+    destination[1][1] = int(resolution[0] + resolution[1] * destination[1][1] /
+            100)
+    destination[2][1] = int(resolution[2] * destination[2][1] / 100)
+    destination[3][1] = int(resolution[0] + resolution[1] * destination[3][1] /
+            100)
+    destination[4][1] = int(resolution[2] * destination[4][1] / 100)
+
+    if destination[0][1] == SYSTEM_MENU_SCREEN:
+        destination[2][1] = destination[2][1] + SYSTEM_MENU_HEIGHT
+
+def locate_window(destination):
     resolutions = get_screen_config()
     active_window_info = get_active_window_info(resolutions)
 
-    # Tranlate relative percent values to absolute percent values
-    if screen_no[0] == "r":
-        screen_no[0] = "a"
-        screen_no[1] = ((active_window_info[0] + screen_no[1]) %
-                len(resolutions))
-
-    if left_percent[0] == "r":
-        left_percent[0] = "a"
-        left_percent[1] = active_window_info[1] + left_percent[1]
-
-    if top_percent[0] == "r":
-        top_percent[0] = "a"
-        top_percent[1] = active_window_info[2] + top_percent[1]
-
-    if right_percent[0] == "r":
-        right_percent[0] = "a"
-        right_percent[1] = active_window_info[3] + right_percent[1]
-
-    if bottom_percent[0] == "r":
-        bottom_percent[0] = "a"
-        bottom_percent[1] = active_window_info[4] + bottom_percent[1]
-
+    #Tranlate relative percent values to absolute percent values
+    relative_to_absolute(destination, resolutions, active_window_info)
 
     # Translate absolute percent value to absolute pixel coordinate
-    resolution = resolutions[screen_no[1]]
-    left_pix = int(resolution[0] + resolution[1] * left_percent[1] / 100)
-    top_pix = int(resolution[2] * top_percent[1] / 100)
-    right_pix = int(resolution[0] + resolution[1] * right_percent[1] / 100)
-    bottom_pix = int(resolution[2] * bottom_percent[1] / 100)
+    percent_to_pixel(destination, resolutions)
 
-    if screen_no[1] == SYSTEM_MENU_SCREEN:
-        top_pix = top_pix + SYSTEM_MENU_HEIGHT
+    left = destination[1][1]
+    top = destination[2][1]
+    right = destination[3][1]
+    bottom = destination[4][1]
 
+    width = right - left
+    height = bottom - top - MENU_HEIGHT
 
-    width_pix = right_pix - left_pix
-    height_pix = bottom_pix - top_pix - MENU_HEIGHT
-
-    cmd = "wmctrl -r :ACTIVE: -e 0,%d,%d,%d,%d" % (left_pix, top_pix,
-            width_pix, height_pix)
+    cmd = "wmctrl -r :ACTIVE: -e 0,%d,%d,%d,%d" % (left, top, width, height)
     print cmd
     os.system(cmd)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 6:
+        print USAGE
+        exit(1)
+
+    destination_position = parse_arguments(sys.argv)
+
+    locate_window(destination_position)
