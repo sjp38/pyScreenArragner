@@ -157,6 +157,13 @@ def relative_to_absolute(destination, resolutions, active_window_info):
         destination[4][0] = "a"
         destination[4][1] = active_window_info[4] + destination[4][1]
 
+    # If left is right side of right or top is lower side of bottom,
+    # do nothing.
+    if (destination[1][1] >= destination[3][1] or
+            destination[2][1] >= destination[4][1]):
+        for i in range(1, 5):
+            destination[i][1] = active_window_info[i]
+
 def percent_to_pixel(destination, resolutions):
     """Translate absolute percent value to absolute pixel coordinate.
 

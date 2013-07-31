@@ -32,6 +32,20 @@ class TestWcoordinate(unittest.TestCase):
         self.assertEqual(destination,
                 [["a", 0], ["a", 10.0], ["a", 20.0], ["a", 30.0], ["a", 30.0]])
 
+        # test bound value
+        resolutions = [[0,100,100], [100,200,200]]
+        active_window_info = [0, 10, 10, 20, 20]
+        destination = [
+                ["r", 0],
+                ["r", 0.0],
+                ["r", 0.0],
+                ["r", -10.0],
+                ["r", 0.0]]
+        wcoordinate.relative_to_absolute(destination, resolutions,
+                active_window_info)
+        self.assertEqual(destination,
+                [["a",0], ["a", 10.0], ["a", 10.0], ["a", 20.0], ["a", 20.0]])
+
     def test_percent_to_pixel(self):
         resolutions = [[0,100,100], [100,200,200]]
         destination = [
