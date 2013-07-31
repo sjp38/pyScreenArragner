@@ -28,7 +28,6 @@ class TestWcoordinate(unittest.TestCase):
                 ["r", 10.0]]
         wcoordinate.relative_to_absolute(destination, resolutions,
                 active_window_info)
-
         self.assertEqual(destination,
                 [["a", 0], ["a", 10.0], ["a", 20.0], ["a", 30.0], ["a", 30.0]])
 
@@ -54,9 +53,7 @@ class TestWcoordinate(unittest.TestCase):
                 ["a", 15.0],
                 ["a", 30.0],
                 ["a", 35.0]]
-
         wcoordinate.percent_to_pixel(destination, resolutions)
-
         self.assertEqual(destination, 
                 [["a", 1], ["a", resolutions[1][0] + 2 * 15],
                     ["a", 2 * 15 + wcoordinate.SYSTEM_MENU_HEIGHT],
