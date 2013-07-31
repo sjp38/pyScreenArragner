@@ -8,25 +8,33 @@ inspiration to this project or using _linux_.
 
 # Usage
 ```
-Usage: ./wcoordinate.py <screen> <left> <top> <right> <bottom>
+Usage: ./wcoordinate.py [--menu-height<=height>] [--system-menu-height<=height>]
+    [--system-menu-screen=<screen>] [--verbose]
+    <screen> <left> <top> <right> <bottom>
+
+    --menu-height: height of menu bar of window in pixel.
+    --system-menu-height: height of system menu bar in pixel.
+    --system-menu-screen: number of screen which system menu bar located.
+    --verbose: show message about what's going on inside.
+
     screen: number of screen which should window locate.
         start from 0, ordered by xrandr says.
         prefix 'a_' for absolute value,
         prefix 'r_' for value relative to current value.
     left: X coordinate of left side of the window in percentage
-        relative to the screen
+        relative to the screen.
         prefix 'a_' for absolute value,
         prefix 'r_' for value relative to current value.
     top: Y coordinate of the top of the window in percentage
-        relative to the screen
+        relative to the screen.
         prefix 'a_' for absolute value,
         prefix 'r_' for value relative to current value.
     right: X coordinate of right side of the window in
-        percentage relative to the screen
+        percentage relative to the screen.
         prefix 'a_' for absolute value,
         prefix 'r_' for value relative to current value.
     bottom: Y coordinate of bottom of the window in percenatge
-        relative to the screen
+        relative to the screen.
         prefix 'a_' for absolute value,
         prefix 'r_' for value relative to current value.
 ```
