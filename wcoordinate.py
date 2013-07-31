@@ -105,15 +105,15 @@ def get_active_window_info(resolutions):
 
 def parse_arguments(args):
     """Parse arguments and set global values, return destination position"""
-    for arg in args:
+    global MENU_HEIGHT, SYSTEM_MENU_HEIGHT, SYSTEM_MENU_SCREEN, VERBOSE
+    for arg in args[:-5]:
         if arg.startswith("--menu-height"):
             MENU_HEIGHT = int(arg.split("=")[1])
-        elif arg.startswith("--system-menu_height"):
+        elif arg.startswith("--system-menu-height"):
             SYSTEM_MENU_HEIGHT = int(arg.split("=")[1])
         elif arg.startswith("--system-menu-screen"):
             SYSTEM_MENU_SCREEN = int(arg.split("=")[1])
         elif arg == "--verbose":
-            global VERBOSE
             VERBOSE = True
 
     screen_no = args[-5].split("_")

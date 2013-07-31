@@ -17,6 +17,15 @@ class TestWcoordinate(unittest.TestCase):
         self.assertEqual(parsed, (["a", 0], ["a", 10.0], ["r", 10.0],
                 ["a", -10.0], ["r", -10.0]))
 
+        args = ["--menu-height=15", "--system-menu-height=16",
+                "--system-menu-screen=7", "--verbose",
+                "a_0", "a_10", "r_10", "a_-10", "r_-10"]
+        parsed = wcoordinate.parse_arguments(args)
+        self.assertEqual(wcoordinate.MENU_HEIGHT, 15)
+        self.assertEqual(wcoordinate.SYSTEM_MENU_HEIGHT, 16)
+        self.assertEqual(wcoordinate.SYSTEM_MENU_SCREEN, 7)
+        self.assertEqual(wcoordinate.VERBOSE, True)
+
     def test_relative_to_absolute(self):
         resolutions = [[0,100,100], [100,200,200]]
         active_window_info = [0, 10, 10, 20, 20]
@@ -47,8 +56,9 @@ class TestWcoordinate(unittest.TestCase):
 
     def test_percent_to_pixel(self):
         resolutions = [[0,100,100], [100,200,200]]
+        wcoordinate.SYSTEM_MENU_SCREEN = 1
         destination = [
-                ["a", 1],
+                ["a", wcoordinate.SYSTEM_MENU_SCREEN],
                 ["a", 15.0],
                 ["a", 15.0],
                 ["a", 30.0],
