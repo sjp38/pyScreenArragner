@@ -17,11 +17,13 @@ if platform.system() != "Linux":
 
 USAGE = """
 Usage: %s [--menu-height<=height>] [--system-menu-height<=height>]
-    [--system-menu-screen=<screen>] <screen> <left> <top> <right> <bottom>
+    [--system-menu-screen=<screen>] [--verbose]
+    <screen> <left> <top> <right> <bottom>
 
     --menu-height: height of menu bar of window in pixel.
     --system-menu-height: height of system menu bar in pixel.
     --system-menu-screen: number of screen which system menu bar located.
+    --verbose: show message about what's going on inside.
 
     screen: number of screen which should window locate.
         start from 0, ordered by xrandr says.
@@ -49,6 +51,8 @@ Usage: %s [--menu-height<=height>] [--system-menu-height<=height>]
 MENU_HEIGHT = 29
 SYSTEM_MENU_HEIGHT = 10
 SYSTEM_MENU_SCREEN = 1
+
+VERBOSE = False
 
 def get_screen_config():
     """Return screen configuration include start coordinate, width, height"""
@@ -108,6 +112,9 @@ def parse_arguments(args):
             SYSTEM_MENU_HEIGHT = int(arg.split("=")[1])
         elif arg.startswith("--system-menu-screen"):
             SYSTEM_MENU_SCREEN = int(arg.split("=")[1])
+        elif arg == "--verbose":
+            global VERBOSE
+            VERBOSE = True
 
     screen_no = args[-5].split("_")
     screen_no[1] = int(screen_no[1])
@@ -187,12 +194,19 @@ def percent_to_pixel(destination, resolutions):
 def locate_window(destination):
     resolutions = get_screen_config()
     active_window_info = get_active_window_info(resolutions)
+    if VERBOSE:
+        print "active window: ", active_window_info
+        print "user want: ", destination
 
     #Tranlate relative percent values to absolute percent values
     relative_to_absolute(destination, resolutions, active_window_info)
+    if VERBOSE:
+        print "absolute dest: ", destination
 
     # Translate absolute percent value to absolute pixel coordinate
     percent_to_pixel(destination, resolutions)
+    if VERBOSE:
+        print "absolute pixel: ", destination
 
     left = destination[1][1]
     top = destination[2][1]
@@ -203,7 +217,8 @@ def locate_window(destination):
     height = bottom - top - MENU_HEIGHT
 
     cmd = "wmctrl -r :ACTIVE: -e 0,%d,%d,%d,%d" % (left, top, width, height)
-    print cmd
+    if VERBOSE:
+        print cmd
     os.system(cmd)
 
 if __name__ == "__main__":
