@@ -48,7 +48,7 @@ Usage: %s [--menu-height<=height>] [--system-menu-height<=height>]
 """ % sys.argv[0]
 
 # bound for menu line
-MENU_HEIGHT = 29
+MENU_HEIGHT = 15
 SYSTEM_MENU_HEIGHT = 10
 SYSTEM_MENU_SCREEN = 1
 
