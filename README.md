@@ -6,6 +6,10 @@ Currently, support _linux_ only. We will __not__ support _MS Windows_, maybe.
 If you are using Windows, consider using _WinSplitRevolution_ which gave
 inspiration to this project or using _linux_.
 
+# Demo video
+You can see demo video of _pyScreenArranger_ from
+[Youtube](http://youtu.be/MhxKQVNQYVE)
+
 # Usage
 ```
 Usage: ./wcoordinate.py [--menu-height<=height>] [--system-menu-height<=height>]
