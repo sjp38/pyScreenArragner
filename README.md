@@ -76,6 +76,10 @@ Shift+Ctrl+J    wcoordinate.py r_0 a_0 a_50 a_100 a_100
 Shift+Ctrl+K    wcoordinate.py r_0 a_0 a_0 a_100 a_50
 # move window to right half
 Shift+Ctrl+L    wcoordinate.py r_0 a_50 a_0 a_100 a_100
+# shrink window's right side about 10% of screen
+Shift+Alt+J    wcoordinate.py r_0 r_0 r_0 r_-10 r_0
+# enlarge window's right side about 10% of screen
+Shift+Ctrl+Alt+L    wcoordinate.py r_0 r_0 r_0 r_10 r_0
 ```
 
 # License
