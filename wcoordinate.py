@@ -56,11 +56,16 @@ VERBOSE = False
 
 def get_screen_config():
     """Return screen configuration include start coordinate, width, height"""
-    raw_resolutions = os.popen("xrandr | grep '*'").readlines()
+    raw_displays = os.popen('xrandr | grep " connected"').readlines()
+    displays = []
+    for raw_display in raw_displays:
+        display = raw_display.split()[2].split('+')
+        displays.append(display)
+    displays = sorted(displays, key=lambda display: display[1])
     resolutions = []
     screen_left = 0
-    for raw_resolution in raw_resolutions:
-        resolution = raw_resolution.split()[0].split('x')
+    for display in displays:
+        resolution = display[0].split('x')
         resolutions.append([screen_left, int(resolution[0]),
             int(resolution[1])])
         screen_left = screen_left + resolutions[-1][1]
