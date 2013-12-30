@@ -3,8 +3,8 @@
 Tool which helps screen arranging by coordinating window.
 
 Currently, support _linux_ only. We will __not__ support _MS Windows_, maybe.
-If you are using Windows, consider using _WinSplitRevolution_ which gave
-inspiration to this project or using _linux_.
+If you are using Windows, consider using _linux_ or _WinSplitRevolution_ which
+gave inspiration to this project.
 
 # Demo video
 You can see demo video of _pyScreenArranger_ from
