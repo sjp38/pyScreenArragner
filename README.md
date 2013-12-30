@@ -10,6 +10,10 @@ gave inspiration to this project.
 You can see demo video of _pyScreenArranger_ from
 [Youtube](http://youtu.be/MhxKQVNQYVE)
 
+# Dependency
+`pyScreenArranger` Use `wmctrl` and `xdotool` internally. You should install
+them before using `pyScreenArranger`.
+
 # Usage
 ```
 Usage: ./wcoordinate.py [--menu-height<=height>] [--system-menu-height<=height>]
