@@ -59,7 +59,12 @@ def get_screen_config():
     raw_displays = os.popen('xrandr | grep " connected"').readlines()
     displays = []
     for raw_display in raw_displays:
-        display = raw_display.split()[2].split('+')
+        display_info = raw_display.split()
+        if display_info[2] == 'primary':
+            display_info = display_info[3]
+        else:
+            display_info = display_info[2]
+        display = display_info.split('+')
         displays.append(display)
     displays = sorted(displays, key=lambda display: display[1])
     resolutions = []
