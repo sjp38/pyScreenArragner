@@ -52,10 +52,12 @@ Usage: ./wcoordinate.py [--menu-height<=height>] [--system-menu-height<=height>]
 $ ./wcoordinate.py r_0 a_0 a_0 a_50 a_50
 ```
 Place currently focused window to left top position of current monitor.
+
 ```
 $ ./wcoordinate.py r_1 r_0 r_0 r_0 r_0
 ```
-Move currently focused window to second monitor.
+Move currently focused window to the monitor in right side.
+
 ```
 $ ./wcoordinate.py r_0 r_10 r_0 r_0 r_0
 ```
